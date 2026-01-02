@@ -1,0 +1,22 @@
+# Firebase credentials
+firebase-admin-key.json
+.env
+.env.local
+.env.production
+
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+
+# Logs
+*.log
+logs/
+
+# TypeScript
+*.tsbuildinfo
+
+# OS
+.DS_Store

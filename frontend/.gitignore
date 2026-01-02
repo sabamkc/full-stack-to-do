@@ -1,0 +1,13 @@
+# Firebase credentials
+firebase-admin-key.json
+.env
+.env.local
+.env.production
+.env.firebase-frontend
+
+# Dependencies
+node_modules/
+
+# Logs
+*.log
+logs/
