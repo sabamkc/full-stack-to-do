@@ -19,7 +19,7 @@
 ### **Backend Development (Steps 4-10)**
 - [x] **Step 4:** Backend - Project Setup & Structure
 - [x] **Step 5:** Backend - Database Schema & Migrations
-- [ ] **Step 6:** Backend - Authentication & Middleware
+- [x] **Step 6:** Backend - Authentication & Middleware
 - [ ] **Step 7:** Backend - API Endpoints (Auth & Users)
 - [ ] **Step 8:** Backend - API Endpoints (Todos)
 - [ ] **Step 9:** Backend - API Endpoints (Projects)
@@ -813,6 +813,187 @@ npm run migrate:create add-new-feature
 
 ---
 
+### **Step 6: Backend - Authentication & Middleware** ✅ COMPLETED
+
+**Objective:** Implement authentication, error handling, logging, and security middleware
+
+#### What Was Accomplished:
+
+1. **Authentication Middleware** (`src/middleware/auth.middleware.ts`):
+   - ✅ Firebase JWT token verification
+   - ✅ Extract user ID from token and attach to request object
+   - ✅ Comprehensive error handling for expired, revoked, and invalid tokens
+   - ✅ Optional authentication middleware for public endpoints
+   - ✅ TypeScript declaration merging to extend Express Request interface
+
+2. **Error Handling Middleware** (`src/middleware/error.middleware.ts`):
+   - ✅ Custom error classes: `ValidationError`, `AuthenticationError`, `AuthorizationError`, `NotFoundError`, `ConflictError`, `DatabaseError`
+   - ✅ PostgreSQL error handling (unique violations, foreign key violations, check constraints, not null violations)
+   - ✅ Zod validation error formatting
+   - ✅ Consistent error response format with status codes
+   - ✅ Stack traces in development mode only
+   - ✅ `asyncHandler` wrapper for async route handlers
+   - ✅ 404 handler for undefined routes
+
+3. **Winston Logger Configuration** (`src/config/logger.ts`):
+   - ✅ File logging with rotation:
+     - `logs/error.log` - Errors only
+     - `logs/combined.log` - All log levels
+     - `logs/exceptions.log` - Uncaught exceptions
+     - `logs/rejections.log` - Unhandled promise rejections
+   - ✅ File rotation: 5MB max per file, keeps last 5 files
+   - ✅ Console output with colors in development
+   - ✅ JSON structured logging in production
+   - ✅ Log levels: error, warn, info, http, debug
+   - ✅ Service metadata in all logs
+
+4. **Request Logging Middleware** (`src/middleware/logger.middleware.ts`):
+   - ✅ Morgan + Winston integration for HTTP request logging
+   - ✅ Request ID generation for distributed tracing
+   - ✅ Detailed structured logs (method, URL, status, duration, user context)
+   - ✅ Sensitive data sanitization (passwords, tokens, secrets)
+   - ✅ Status-based logging: 5xx as errors, 4xx as warnings
+   - ✅ Custom Morgan tokens for user ID and sanitized request body
+   - ✅ Error logger middleware with full request context
+
+5. **Rate Limiting Middleware** (`src/middleware/rateLimit.middleware.ts`):
+   - ✅ General rate limiter: 100 requests/minute
+   - ✅ Strict rate limiter: 20 requests/minute for anonymous users
+   - ✅ Auth rate limiter: 5 attempts per 15 minutes (brute force protection)
+   - ✅ Create rate limiter: 30 requests/minute for write operations
+   - ✅ Search rate limiter: 50 requests/minute for query operations
+   - ✅ IPv6 support with default key generator
+   - ✅ Skip conditions for health checks and trusted IPs
+   - ✅ Standard rate limit headers (RateLimit-Limit, RateLimit-Remaining, RateLimit-Reset)
+   - ✅ Custom rate limit handler with logging
+
+6. **Validation Middleware** (`src/middleware/validate.middleware.ts`):
+   - ✅ Zod schema validation for body, params, query
+   - ✅ `validate(schema, target)` - Single target validation
+   - ✅ `validateAll(schemas)` - Multiple target validation
+   - ✅ User-friendly error messages with field paths
+   - ✅ Common reusable schemas:
+     - `uuidParamSchema` - UUID parameter validation
+     - `paginationSchema` - Page, limit, sortBy, sortOrder
+     - `searchSchema` - Search query with pagination
+     - `dateRangeSchema` - Start date and end date validation
+     - `emailSchema` - Email validation
+     - `passwordSchema` - Strong password requirements (12+ chars, uppercase, lowercase, number, special char)
+
+7. **Express App Integration** (`src/index.ts`):
+   - ✅ Proper middleware order:
+     1. Request ID assignment
+     2. Security headers (Helmet)
+     3. CORS with credentials
+     4. Body parsers (10MB limit)
+     5. Request logging (Morgan + Winston)
+     6. Rate limiting
+     7. Routes
+     8. 404 handler
+     9. Error logger
+     10. Error handler
+   - ✅ Enhanced CORS configuration (credentials, methods, allowed headers)
+   - ✅ Server error handling (EADDRINUSE detection)
+   - ✅ Graceful shutdown handlers (SIGTERM, SIGINT)
+   - ✅ Server instance stored for proper cleanup
+
+8. **Testing & Verification:**
+   - ✅ Server starts successfully without crashes
+   - ✅ Server stays alive (no immediate exit)
+   - ✅ Health endpoint responds: GET /health (200 OK)
+   - ✅ Database connection verified through health check
+   - ✅ Winston logs created in `logs/` directory
+   - ✅ All middleware active and functioning
+   - ✅ Nodemon hot reload working
+
+#### Files Created:
+- `src/middleware/auth.middleware.ts` - Firebase authentication
+- `src/middleware/error.middleware.ts` - Error handling and custom error classes
+- `src/middleware/logger.middleware.ts` - Request logging with Morgan + Winston
+- `src/middleware/rateLimit.middleware.ts` - Rate limiting configuration
+- `src/middleware/validate.middleware.ts` - Zod validation helpers
+- `src/config/logger.ts` - Winston logger configuration
+- `logs/` - Directory for log files (auto-created)
+- `test-middleware.http` - HTTP test file for manual testing
+
+#### Middleware Stack Configured:
+
+| Order | Middleware | Purpose | Status |
+|-------|-----------|---------|--------|
+| 1 | requestIdMiddleware | Assign unique ID per request | ✅ Active |
+| 2 | helmet() | Security headers | ✅ Active |
+| 3 | cors() | Cross-origin requests | ✅ Active |
+| 4 | express.json() | Parse JSON bodies | ✅ Active |
+| 5 | express.urlencoded() | Parse URL-encoded bodies | ✅ Active |
+| 6 | requestLogger | Morgan HTTP logger | ✅ Active |
+| 7 | detailedRequestLogger | Winston structured logging | ✅ Active |
+| 8 | generalRateLimiter | 100 req/min limit | ✅ Active |
+| 9 | Routes | API endpoints | Ready for Step 7 |
+| 10 | notFoundHandler | 404 errors | ✅ Active |
+| 11 | errorLogger | Log errors before response | ✅ Active |
+| 12 | errorHandler | Global error handler | ✅ Active |
+
+#### Verification Checklist:
+- [x] Authentication middleware validates Firebase tokens
+- [x] Error handling middleware catches all errors
+- [x] Winston logger configured with file rotation
+- [x] Request logging captures all HTTP requests
+- [x] Rate limiting protects all endpoints
+- [x] Validation middleware ready for use
+- [x] Server starts without errors
+- [x] Server stays alive and responds to requests
+- [x] Health endpoint returns 200 OK
+- [x] Database connection working
+- [x] Logs directory created with log files
+- [x] Nodemon watching for changes
+- [x] Graceful shutdown handlers configured
+
+#### Error Response Format:
+```json
+{
+  "success": false,
+  "error": "User-friendly error message",
+  "code": "ERROR_CODE",
+  "statusCode": 400,
+  "stack": "... (development only)",
+  "details": { "field": "error details" }
+}
+```
+
+#### Log Output Example:
+```
+2026-01-02 20:09:26 [info]: GET /health 200 1350.573 ms - anonymous {
+  "service": "todo-app-backend",
+  "environment": "development"
+}
+```
+
+#### Rate Limit Response Headers:
+```
+RateLimit-Limit: 100
+RateLimit-Remaining: 95
+RateLimit-Reset: 1704196800
+Retry-After: 60
+```
+
+#### Issues Resolved:
+1. **Server Exit Issue**
+   - Problem: Server immediately exited after `app.listen()` callback
+   - Solution: Added server error handler and proper event listeners
+   - Result: Server now stays alive and processes requests
+
+2. **Rate Limiter IPv6 Error**
+   - Problem: Custom keyGenerator didn't handle IPv6 properly
+   - Solution: Removed custom keyGenerator, use express-rate-limit default
+   - Result: IPv6 and IPv4 both supported correctly
+
+3. **Conditional Export Syntax Error**
+   - Problem: TypeScript doesn't allow `export` inside `if` statement
+   - Solution: Use unconditional export, rely on module system
+   - Result: No more transpilation errors
+
+---
+
 ## 📋 Remaining Steps Overview
 
 ### **Backend Development (Steps 4-10)**
@@ -1028,25 +1209,26 @@ npm run migrate:create add-new-feature
 
 ## 📊 Progress Tracking
 
-### Overall Progress: **20% Complete** (5/25 steps)
+### Overall Progress: **24% Complete** (6/25 steps)
 
 | Phase | Steps | Completed | Percentage |
 |-------|-------|-----------|------------|
 | Infrastructure & Setup | 3 | 3 | 100% ✅ |
-| Backend Development | 7 | 2 | 29% |
+| Backend Development | 7 | 3 | 43% |
 | Frontend Development | 11 | 0 | 0% |
 | Deployment & Launch | 4 | 0 | 0% |
-| **TOTAL** | **25** | **5** | **20%** |
+| **TOTAL** | **25** | **6** | **24%** |
 
 ---
 
 ## 🎯 Current Status
 
-**Current Step:** Ready for Step 6 (Backend - Authentication & Middleware)  
-**Last Completed:** Step 5 (Backend - Database Schema & Migrations) - January 2, 2026  
-**Next Milestone:** Complete Backend API Development (Steps 6-10)  
-**Backend Progress:** Database schema complete, ready for API endpoints  
-**Estimated Time to Step 6 Completion:** 45-60 minutes  
+**Current Step:** Ready for Step 7 (Backend - API Endpoints: Auth & Users)  
+**Last Completed:** Step 6 (Backend - Authentication & Middleware) - January 2, 2026  
+**Next Milestone:** Complete Backend API Development (Steps 7-10)  
+**Backend Progress:** Middleware & authentication complete, ready for API endpoints  
+**Server Status:** ✅ Running on port 3000  
+**Estimated Time to Step 7 Completion:** 60-90 minutes  
 
 ---
 
@@ -1131,12 +1313,22 @@ https://dashboard.render.com/ (Database: todo-db-production)
 - ✅ Data validation constraints
 - ✅ Migration system in place
 
-**Next Phase:** Authentication & API Endpoints (Steps 6-10)
+### Middleware & Security Complete! (Step 6)
+- ✅ Firebase authentication middleware
+- ✅ Error handling with custom error classes
+- ✅ Winston logger with file rotation
+- ✅ Request logging with Morgan integration
+- ✅ Rate limiting (100 req/min general, 20 req/min anonymous)
+- ✅ Zod validation middleware
+- ✅ Server running and responding to requests
+- ✅ Graceful shutdown handlers
+
+**Next Phase:** API Endpoint Development (Steps 7-10)
 
 ---
 
 **Last Updated:** January 2, 2026  
-**Next Update:** After Step 6 completion
+**Next Update:** After Step 7 completion
 
 **Last Updated:** January 1, 2026  
 **Next Update:** After Step 3 completion

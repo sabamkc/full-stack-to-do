@@ -23,3 +23,6 @@ logs/
 
 # test-db
 src/temp_test
+
+# logs
+src/logs
