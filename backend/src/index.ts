@@ -13,6 +13,7 @@ import { errorHandler, notFoundHandler } from './middleware/error.middleware';
 
 // Import routes
 import authRoutes from './routes/auth.routes';
+import todoRoutes from './routes/todo.routes';
 
 const app: Application = express();
 
@@ -92,7 +93,7 @@ app.get('/', (_req: Request, res: Response) => {
 
 // API Routes will be mounted here
 app.use('/api/v1/auth', authRoutes);
-// Example: app.use('/api/v1/todos', authenticateUser, todoRoutes);
+app.use('/api/v1/todos', todoRoutes);
 // Example: app.use('/api/v1/projects', authenticateUser, projectRoutes);
 
 // ============================================

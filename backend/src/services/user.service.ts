@@ -60,7 +60,7 @@ export const findUserByFirebaseUid = async (firebaseUid: string): Promise<User |
         photo_url, 
         email_verified, 
         is_active, 
-        last_login_at, 
+        last_login_at AS last_login, 
         created_at, 
         updated_at
       FROM users
@@ -89,11 +89,10 @@ export const findUserByEmail = async (email: string): Promise<User | null> => {
         id, 
         firebase_uid, 
         email, 
-        display_name, 
-        photo_url, 
+        display_name, \n        photo_url, 
         email_verified, 
         is_active, 
-        last_login_at, 
+        last_login_at AS last_login, 
         created_at, 
         updated_at
       FROM users
@@ -162,7 +161,7 @@ export const updateUser = async (
         photo_url, 
         email_verified, 
         is_active, 
-        last_login_at, 
+        last_login_at AS last_login, 
         created_at, 
         updated_at
     `;

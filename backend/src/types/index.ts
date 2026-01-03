@@ -9,7 +9,7 @@ export interface User {
   display_name: string;
   photo_url: string | null;
   email_verified: boolean;
-  last_login_at: Date | null;
+  last_login: Date | null;
   created_at: Date;
   updated_at: Date;
   deleted_at: Date | null;
@@ -32,10 +32,14 @@ export interface Todo {
   user_id: number;
   title: string;
   description: string | null;
-  status: 'pending' | 'in_progress' | 'completed';
-  priority: 'low' | 'medium' | 'high';
+  status: 'pending' | 'in_progress' | 'completed' | 'archived';
+  priority: 'low' | 'medium' | 'high' | 'critical';
   due_date: Date | null;
   completed_at: Date | null;
+  position: number;
+  tags: string[];
+  starred: boolean;
+  reminder_at: Date | null;
   created_at: Date;
   updated_at: Date;
   deleted_at: Date | null;

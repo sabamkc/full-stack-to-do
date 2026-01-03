@@ -138,7 +138,7 @@ export const getCurrentUser = asyncHandler(async (req: Request, res: Response) =
         displayName: user.display_name,
         photoURL: user.photo_url,
         emailVerified: user.email_verified,
-        lastLogin: user.last_login_at,
+        lastLogin: user.last_login,
         createdAt: user.created_at,
         updatedAt: user.updated_at,
       },

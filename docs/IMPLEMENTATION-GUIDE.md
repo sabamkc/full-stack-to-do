@@ -20,8 +20,8 @@
 - [x] **Step 4:** Backend - Project Setup & Structure
 - [x] **Step 5:** Backend - Database Schema & Migrations
 - [x] **Step 6:** Backend - Authentication & Middleware
-- [ ] **Step 7:** Backend - API Endpoints (Auth & Users)
-- [ ] **Step 8:** Backend - API Endpoints (Todos)
+- [x] **Step 7:** Backend - API Endpoints (Auth & Users)
+- [x] **Step 8:** Backend - API Endpoints (Todos)
 - [ ] **Step 9:** Backend - API Endpoints (Projects)
 - [ ] **Step 10:** Backend - Testing & Documentation
 
@@ -948,6 +948,270 @@ npm run migrate:create add-new-feature
 - [x] Nodemon watching for changes
 - [x] Graceful shutdown handlers configured
 
+---
+
+### **Step 7: Backend - API Endpoints (Auth & Users)** ✅ COMPLETED
+
+**Objective:** Build authentication and user management API endpoints
+
+**Date Completed:** January 3, 2026
+
+#### What Was Accomplished:
+
+1. **Type Definitions Created:**
+   - ✅ TypeScript interfaces for all database entities
+   - ✅ User, UserSession, Todo, Project, TodoProject, AuditLog types
+   - ✅ AuthenticatedRequest interface for extending Express Request
+
+2. **Validation Schemas:**
+   - ✅ Register schema: email, password, displayName validation
+   - ✅ Login schema: email, idToken (Firebase token) validation
+   - ✅ Update profile schema: displayName, photoURL (optional fields)
+   - ✅ Type inference with Zod for compile-time safety
+
+3. **User Service Layer:**
+   - ✅ createUser: Create user in PostgreSQL with conflict handling
+   - ✅ findUserByFirebaseUid: Lookup by Firebase authentication ID
+   - ✅ findUserByEmail: Lookup by email address
+   - ✅ updateUser: Dynamic UPDATE query for flexible profile updates
+   - ✅ updateLastLogin: Track user activity timestamps
+   - ✅ softDeleteUser: Soft delete support (deleted_at flag)
+   - ✅ All queries use parameterized statements (SQL injection protection)
+
+4. **Auth Controllers Implemented:**
+   - ✅ register: Create Firebase user → Create DB record with rollback on failure
+   - ✅ login: Verify ID token → Update last_login → Return user data
+   - ✅ getCurrentUser: Fetch profile using req.userId from auth middleware
+   - ✅ updateProfile: Update both database and Firebase Auth profile
+   - ✅ logout: Placeholder endpoint for future session management
+   - ✅ All wrapped in asyncHandler for automatic error catching
+
+5. **Auth Routes Configuration:**
+   - ✅ POST /api/v1/auth/register - Public registration endpoint
+   - ✅ POST /api/v1/auth/login - Public login endpoint
+   - ✅ GET /api/v1/auth/me - Protected: get current user
+   - ✅ PATCH /api/v1/auth/me - Protected: update profile
+   - ✅ POST /api/v1/auth/logout - Protected: logout placeholder
+   - ✅ Validation middleware applied to all routes
+   - ✅ Authentication middleware on protected routes
+
+6. **Error Handling Enhanced:**
+   - ✅ Added UnauthorizedError class (401 errors)
+   - ✅ Null checks for user lookups with NotFoundError
+   - ✅ ConflictError for duplicate email registrations
+   - ✅ All unused parameters prefixed with underscore
+
+7. **Integration & Testing:**
+   - ✅ Routes mounted at /api/v1/auth in main app
+   - ✅ API testing documentation created with curl examples
+   - ✅ All TypeScript compilation errors resolved
+   - ✅ Server running without errors
+
+#### Files Created:
+- `src/types/index.ts` - TypeScript type definitions for all entities
+- `src/schemas/auth.schema.ts` - Zod validation schemas for auth endpoints
+- `src/services/user.service.ts` - User database operations service layer
+- `src/controllers/auth.controller.ts` - Auth request handlers
+- `src/routes/auth.routes.ts` - Auth route definitions
+- `backend/docs/API-TESTING.md` - Complete API testing guide with curl commands
+
+#### Files Modified:
+- `src/middleware/error.middleware.ts` - Added UnauthorizedError class
+- `src/index.ts` - Mounted auth routes, fixed unused parameters
+
+#### API Endpoints Available:
+
+| Endpoint | Method | Access | Purpose |
+|----------|--------|--------|---------|
+| `/api/v1/auth/register` | POST | Public | Register new user (Firebase + DB) |
+| `/api/v1/auth/login` | POST | Public | Login with Firebase ID token |
+| `/api/v1/auth/me` | GET | Protected | Get current user profile |
+| `/api/v1/auth/me` | PATCH | Protected | Update display name & photo |
+| `/api/v1/auth/logout` | POST | Protected | Logout (logging/future sessions) |
+
+#### Security Features:
+- **Parameterized Queries:** All SQL queries use parameterization to prevent SQL injection
+- **Token Verification:** Firebase ID tokens verified on every protected request
+- **Ownership Validation:** Users can only access their own data
+- **Rollback on Failure:** Firebase user deleted if database creation fails
+- **Null Checks:** All user lookups verified before accessing properties
+- **Error Masking:** Internal errors logged but not exposed to clients
+
+#### Verification Checklist:
+- [x] Type definitions created for all entities
+- [x] Validation schemas working with Zod
+- [x] User service layer functions implemented
+- [x] Auth controllers with proper error handling
+- [x] Routes configured with middleware
+- [x] UnauthorizedError class added
+- [x] Null checks prevent runtime errors
+- [x] Routes mounted in main app
+- [x] No TypeScript compilation errors
+- [x] API testing documentation created
+- [x] All endpoints follow consistent response format
+- [x] Protected routes require authentication
+
+---
+
+### **Step 8: Backend - API Endpoints (Todos)** ✅ COMPLETED
+
+**Objective:** Build complete CRUD operations for todo management with advanced filtering
+
+**Date Completed:** January 3, 2026
+
+#### What Was Accomplished:
+
+1. **Todo Validation Schemas:**
+   - ✅ createTodoSchema: title, description, status, priority, dueDate, tags, starred, reminderAt
+   - ✅ updateTodoSchema: All fields optional for partial updates
+   - ✅ getTodosQuerySchema: Filters (status, priority, search, starred, dateRange), pagination (page, limit), sorting (sortBy, sortOrder)
+   - ✅ todoIdParamSchema: UUID validation for route parameters
+   - ✅ Enum validation for status (pending, in_progress, completed, archived) and priority (low, medium, high, critical)
+
+2. **Todo Service Layer:**
+   - ✅ createTodo: Insert new todo with user ownership
+   - ✅ getTodoById: Fetch single todo with ownership verification
+   - ✅ getTodosByUserId: Advanced filtering, search, pagination, sorting
+   - ✅ updateTodo: Partial updates with dynamic query builder
+   - ✅ softDeleteTodo: Mark deleted_at without removing data
+   - ✅ getStatsByUserId: Dashboard statistics (total, by status, by priority, completed today, due soon)
+   - ✅ All queries parameterized for SQL injection protection
+   - ✅ Efficient pagination with OFFSET/LIMIT
+   - ✅ Full-text search on title and description
+
+3. **Todo Controllers Implemented:**
+   - ✅ createTodo: Create todo for authenticated user
+   - ✅ getTodos: List todos with filters, search, pagination, sorting
+   - ✅ getTodoById: Get single todo with ownership check
+   - ✅ updateTodo: Update todo with ownership verification
+   - ✅ deleteTodo: Soft delete with ownership check
+   - ✅ getStats: Return user-specific statistics
+   - ✅ All wrapped in asyncHandler for error handling
+   - ✅ Proper authorization checks on all operations
+
+4. **Todo Routes Configuration:**
+   - ✅ POST /api/v1/todos - Create new todo
+   - ✅ GET /api/v1/todos - List todos with filters
+   - ✅ GET /api/v1/todos/stats - Get statistics (route order matters)
+   - ✅ GET /api/v1/todos/:id - Get single todo
+   - ✅ PATCH /api/v1/todos/:id - Update todo
+   - ✅ DELETE /api/v1/todos/:id - Soft delete todo
+   - ✅ All routes protected with authenticateUser middleware
+   - ✅ Validation middleware applied appropriately
+
+5. **Advanced Features:**
+   - ✅ **Filtering:** By status, priority, starred, date ranges
+   - ✅ **Search:** Full-text search across title and description (ILIKE)
+   - ✅ **Pagination:** page/limit with total count metadata
+   - ✅ **Sorting:** Configurable sortBy field and sortOrder (asc/desc)
+   - ✅ **Statistics:** Total todos, breakdown by status/priority, completed today, due soon
+   - ✅ **Ownership:** All operations verify user owns the todo
+   - ✅ **Soft Deletes:** deleted_at filter on all queries
+
+6. **Integration & Testing:**
+   - ✅ Routes mounted at /api/v1/todos in main app
+   - ✅ All TypeScript compilation errors resolved
+   - ✅ Ownership checks prevent unauthorized access
+   - ✅ Server running without errors
+
+#### Files Created:
+- `src/schemas/todo.schema.ts` - Comprehensive Zod validation for todo operations
+- `src/services/todo.service.ts` - Todo database service layer with advanced queries
+- `src/controllers/todo.controller.ts` - Todo request handlers with authorization
+- `src/routes/todo.routes.ts` - Todo route definitions with middleware
+
+#### Files Modified:
+- `src/index.ts` - Mounted todo routes at /api/v1/todos
+
+#### API Endpoints Available:
+
+| Endpoint | Method | Access | Purpose |
+|----------|--------|--------|---------|
+| `/api/v1/todos` | POST | Protected | Create new todo |
+| `/api/v1/todos` | GET | Protected | List todos (filtered, paginated, sorted) |
+| `/api/v1/todos/stats` | GET | Protected | Get user statistics |
+| `/api/v1/todos/:id` | GET | Protected | Get single todo by ID |
+| `/api/v1/todos/:id` | PATCH | Protected | Update todo (partial) |
+| `/api/v1/todos/:id` | DELETE | Protected | Soft delete todo |
+
+#### Query Parameters Supported:
+
+**GET /api/v1/todos:**
+- `status`: Filter by status (pending, in_progress, completed, archived)
+- `priority`: Filter by priority (low, medium, high, critical)
+- `starred`: Filter starred todos (true/false)
+- `search`: Search in title and description
+- `dueAfter`: Filter todos due after date (ISO datetime)
+- `dueBefore`: Filter todos due before date (ISO datetime)
+- `page`: Page number (default: 1)
+- `limit`: Items per page (default: 20, max: 100)
+- `sortBy`: Sort field (createdAt, updatedAt, dueDate, priority, status, title)
+- `sortOrder`: Sort direction (asc, desc)
+
+#### Response Format:
+
+**List Response (GET /todos):**
+```json
+{
+  "success": true,
+  "data": {
+    "todos": [...],
+    "pagination": {
+      "page": 1,
+      "limit": 20,
+      "total": 45,
+      "totalPages": 3
+    }
+  }
+}
+```
+
+**Stats Response (GET /todos/stats):**
+```json
+{
+  "success": true,
+  "data": {
+    "stats": {
+      "total": 45,
+      "byStatus": { "pending": 20, "in_progress": 15, "completed": 10 },
+      "byPriority": { "low": 10, "medium": 25, "high": 8, "critical": 2 },
+      "completedToday": 3,
+      "dueSoon": 7
+    }
+  }
+}
+```
+
+#### Security Features:
+- **Ownership Validation:** Every operation verifies user owns the todo
+- **Parameterized Queries:** SQL injection protection on all queries
+- **Soft Deletes:** Deleted todos excluded from all queries
+- **Authorization Checks:** 404 returned for todos not owned by user
+- **Input Validation:** Zod schemas validate all inputs
+- **SQL Injection Safe Search:** Search queries properly parameterized
+
+#### Performance Optimizations:
+- **Indexed Queries:** All filters use database indexes
+- **Pagination:** OFFSET/LIMIT prevents loading all records
+- **Conditional Queries:** Only adds WHERE clauses for provided filters
+- **Single Database Hits:** Statistics calculated in one query
+- **Efficient Counting:** COUNT(*) OVER() for pagination without extra query
+
+#### Verification Checklist:
+- [x] Todo validation schemas complete
+- [x] Service layer with advanced filtering
+- [x] Controllers with ownership checks
+- [x] Routes properly configured
+- [x] All routes protected with authentication
+- [x] Mounted in main application
+- [x] No TypeScript compilation errors
+- [x] Pagination working correctly
+- [x] Search functionality implemented
+- [x] Sorting working on all supported fields
+- [x] Statistics endpoint returning correct data
+- [x] Soft deletes properly filtered
+- [x] Ownership validation on all operations
+
 #### Error Response Format:
 ```json
 {
@@ -1223,12 +1487,12 @@ Retry-After: 60
 
 ## 🎯 Current Status
 
-**Current Step:** Ready for Step 7 (Backend - API Endpoints: Auth & Users)  
-**Last Completed:** Step 6 (Backend - Authentication & Middleware) - January 2, 2026  
-**Next Milestone:** Complete Backend API Development (Steps 7-10)  
-**Backend Progress:** Middleware & authentication complete, ready for API endpoints  
-**Server Status:** ✅ Running on port 3000  
-**Estimated Time to Step 7 Completion:** 60-90 minutes  
+**Current Step:** Ready for Step 9 (Backend - API Endpoints: Projects)  
+**Last Completed:** Step 8 (Backend - API Endpoints: Todos) - January 3, 2026  
+**Next Milestone:** Complete Backend API Development (Steps 9-10)  
+**Backend Progress:** Auth & Todo APIs complete, Projects API next  
+**Server Status:** ✅ Running on port 3000 with auth & todo routes  
+**Estimated Time to Step 9 Completion:** 60-90 minutes  
 
 ---
 
@@ -1323,7 +1587,26 @@ https://dashboard.render.com/ (Database: todo-db-production)
 - ✅ Server running and responding to requests
 - ✅ Graceful shutdown handlers
 
-**Next Phase:** API Endpoint Development (Steps 7-10)
+### Authentication API Complete! (Step 7)
+- ✅ User type definitions for all entities
+- ✅ Auth validation schemas with Zod
+- ✅ User service layer with 6 functions
+- ✅ Auth controllers (regi3, 2026  
+**Next Update:** After Step 9tration failure
+
+### Todo API Complete! (Step 8)
+- ✅ Todo validation schemas with advanced filters
+- ✅ Todo service layer with CRUD + statistics
+- ✅ Todo controllers with ownership checks
+- ✅ 6 todo endpoints mounted at /api/v1/todos
+- ✅ Advanced filtering (status, priority, date ranges)
+- ✅ Full-text search on title and description
+- ✅ Pagination with metadata (page, limit, total)
+- ✅ Sorting on multiple fields (asc/desc)
+- ✅ Statistics endpoint for dashboard metrics
+- ✅ Soft delete support throughout
+
+**Next Phase:** Projects API Development (Step 9) + Testing & Documentation (Step 10)
 
 ---
 

@@ -115,7 +115,7 @@ export const requestIdMiddleware = (
 export const errorLogger = (
   err: Error,
   req: Request,
-  res: Response,
+  _res: Response,
   next: NextFunction
 ): void => {
   logger.error('Error occurred during request', {
