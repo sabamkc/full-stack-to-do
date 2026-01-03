@@ -39,6 +39,12 @@ export class AuthenticationError extends AppError {
   }
 }
 
+export class UnauthorizedError extends AppError {
+  constructor(message: string = 'Unauthorized') {
+    super(message, 401, 'UNAUTHORIZED');
+  }
+}
+
 export class AuthorizationError extends AppError {
   constructor(message: string = 'Permission denied') {
     super(message, 403, 'AUTHORIZATION_ERROR');
@@ -83,7 +89,7 @@ export const errorHandler = (
   err: Error | AppError,
   req: Request,
   res: Response,
-  next: NextFunction
+  _next: NextFunction
 ): void => {
   // Default error values
   let statusCode = 500;
@@ -197,7 +203,7 @@ export const asyncHandler = (
  */
 export const notFoundHandler = (
   req: Request,
-  res: Response,
+  _res: Response,
   next: NextFunction
 ): void => {
   const error = new NotFoundError(

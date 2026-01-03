@@ -11,6 +11,9 @@ import { requestLogger, detailedRequestLogger, requestIdMiddleware, errorLogger 
 import { generalRateLimiter } from './middleware/rateLimit.middleware';
 import { errorHandler, notFoundHandler } from './middleware/error.middleware';
 
+// Import routes
+import authRoutes from './routes/auth.routes';
+
 const app: Application = express();
 
 // ============================================
@@ -47,7 +50,7 @@ app.use(generalRateLimiter);
 // ============================================
 
 // Health check endpoint (no authentication required)
-app.get('/health', async (req: Request, res: Response) => {
+app.get('/health', async (_req: Request, res: Response) => {
   try {
     // Test database connection
     await pool.query('SELECT NOW()');
@@ -73,7 +76,7 @@ app.get('/health', async (req: Request, res: Response) => {
 });
 
 // Root endpoint
-app.get('/', (req: Request, res: Response) => {
+app.get('/', (_req: Request, res: Response) => {
   res.json({
     message: 'Todo App API',
     version: '1.0.0',
@@ -88,7 +91,7 @@ app.get('/', (req: Request, res: Response) => {
 });
 
 // API Routes will be mounted here
-// Example: app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/auth', authRoutes);
 // Example: app.use('/api/v1/todos', authenticateUser, todoRoutes);
 // Example: app.use('/api/v1/projects', authenticateUser, projectRoutes);
 
